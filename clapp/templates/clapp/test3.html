@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      #map {
+        height: 100%;
+      }
+      
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>My Google Maps Demo</h2>
+    <div id="map"></div>
+    <script>
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+          zoom: 17,
+          center: {lat: 13.5892, lng: 80.0283},
+
+        });
+
+        //Setting the icons 
+
+        var icon1 ={ url:"https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678085-house-32.png"
+        /*scaledSize:new google.maps.Size(50,50),
+        origin:new google.maps.Point(0,0),
+        anchor:new google.maps.Point(0,0)*/  
+      };
+      var wheaticon={url:"https://cdn0.iconfinder.com/data/icons/free-skycons-mix-april-1/128/yumminky-skycons-mix-01-32.png"};
+      var wellicon={url:"https://cdn2.iconfinder.com/data/icons/circle-icons-1/64/water-32.png"};
+
+      //Retreiving the data from the python file       
+
+        var A={{j4_lat}};
+        var B={{j4_long}};
+        var C={{j1_lat}};
+        var D={{j1_lng}};
+        var F={{j3}};
+        var E={{j1_in}};
+        var Well_lat={{j6_lat}};
+        var Well_lng={{j6_lng}};
+        var Well_depth={{j6_depth}};
+        //var N={{j3_name}};
+        //var Photo={{j5}};
+
+        //For household
+
+    C.forEach(function(element,index){
+
+      var pos=new google.maps.LatLng( C[index] , D[index]);
+      var img=icon1;
+      var rad=F[index]*5;
+      var income=parseFloat(E[index]);
+      var inc=income/10000;
+      //var name=N[index];
+      //var p=P[index];
+      //var ph=Photo[index];
+      addMarkers(pos,map,img,rad,inc);
+
+        });
+
+    //For well information
+
+    Well_lat.forEach(function(element,index){
+        var pos=new google.maps.LatLng( Well_lat[index] , Well_lng[index]);
+        var img=wellicon;
+        var depth=Well_depth[index];
+
+        addWellmarkers(pos,depth,img,map);
+       /* var marker=new google.maps.Marker({
+            position:pos,
+            map:map
+        });*/
+
+  });
+   
+    //Farm code
+
+    B.forEach(function(element,index){
+    coords = [];
+    var x = element.length;
+    for(var j=0;j<x;j++)
+    {
+      coords.push({lat:A[index][j],lng:B[index][j]});
+    }
+    console.log(coords);
+    var bermudaTriangle = new google.maps.Polygon({
+        paths: coords,
+        strokeColor: '#FF0000',
+        strokeOpacity: 0.8,
+        strokeWeight: 3,
+        fillColor: '#FF0000',
+        fillOpacity: 0.8
+      });
+
+          bermudaTriangle.setMap(map);
+
+    bermudaTriangle.addListener('click', (event) =>{
+
+      var p = '(i+1)';
+      var q = 'c[index]';
+
+      var contentString = '<b>Farm Id:</b>  ' + '1' + '<br>' + '<b>Area:</b>   ' + '6acr';
+      var infoWindow =new google.maps.InfoWindow({
+        position:event.latLng,
+        content:contentString
+
+      });
+     
+      infoWindow.open(map);
+       
+    });
+
+  });
+
+    //Functions for the above code
+
+function addMarkers(pos,map ,img, rad, inc)
+{
+      var marker = new google.maps.Marker({
+        position:pos,
+        icon:img,
+        map:map
+      });
+
+      google.maps.event.addListener(marker, 'click', function(){
+
+        var marwindow=new google.maps.InfoWindow({
+           content:"Name:keshav"
+
+                    
+        });
+
+        marwindow.open(map,marker);
+      });
+
+      var circle = new google.maps.Circle({
+        map: map,
+        radius: rad,    // 10 miles in metres
+        fillColor: '#AA0000',
+        fillOpacity:inc
+});
+circle.bindTo('center', marker, 'position');
+}
+
+function addWellmarkers(pos,depth,image,map){
+  var marker =new google.maps.Marker({
+    position:pos,
+    title:depth,
+    icon:image,
+    map:map
+  });
+
+  google.maps.event.addListener(marker,'click',function(){
+    var wellwindow=new google.maps.InfoWindow({
+        content:"<b>Depth of well:  </b>"+String(depth)+"m"// content: "<div style='float:left'><img src='http://i.stack.imgur.com/g672i.png'></div><div style='float:right; padding: 10px;'><b>Title</b><br/>123 Address<br/> City,Country</div>"
+
+    });
+    wellwindow.open(map,marker);
+
+  });
+}
+ 
+      }
+    </script>
+    <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA6a4S-xH4a4adbVbnuKoXqkueYiMPOFHw&callback=initMap">
+    </script>
+  </body>
+</html>
